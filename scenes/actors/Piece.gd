@@ -3,6 +3,7 @@ class_name Piece
 
 var color: int
 var pairDirection
+var pairedPieceIndex
 var cellSize: int = 36
 
 # Called when the node enters the scene tree for the first time.
@@ -16,7 +17,8 @@ func _ready():
 	elif color == Constants.Colors.GREEN:
 		$Sprite2D.texture = load("res://assets/sprites/green.png")
 
-func init(color: int, pairDirection):
+func init(color: int, pairDirection, pairedPieceIndex):
+	self.pairedPieceIndex = pairedPieceIndex
 	self.color = color
 	$Polygon2D.position = $Polygon2D.position - Vector2(cellSize/2,cellSize/2)
 	set_direction(pairDirection)

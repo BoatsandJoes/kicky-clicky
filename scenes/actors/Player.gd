@@ -4,6 +4,7 @@ class_name Player
 signal kick(direction: int)
 signal move(distance: int, direction: int)
 
+var positionFlatIndex: int
 var direction: int = Constants.Directions.RIGHT
 var moving: bool = false
 var moveThreshold: float = 0.1

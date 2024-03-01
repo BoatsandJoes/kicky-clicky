@@ -8,65 +8,66 @@ var numPieces: int = 45
 var numColors: int = 3
 var clearSize: int = 3
 var startPos: int = boardWidth / 2 + 1 + boardWidth * (boardHeight / 2 + 1)
-var array: Array = []
-var pieces: Array = []
+var grid: Dictionary = {}
 var Piece = preload("res://scenes/actors/Piece.tscn")
 var Player = preload("res://scenes/actors/Player.tscn")
 var player: Player
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	for i in range(boardHeight):
-		for j in range(boardWidth):
-			array.append(null)
-	array[startPos] = -1
+	# Background
 	var points = [Vector2(0,0), Vector2(0,boardHeight * cellSize),
 	Vector2(boardWidth*cellSize, boardHeight * cellSize), Vector2(boardWidth*cellSize, 0)]
 	$Polygon2D.set_polygon(points)
 	player = Player.instantiate()
 	player.position = get_screen_position_for_flat_index(startPos)
+	grid[startPos] = player
+	player.positionFlatIndex = startPos
 	player.move.connect(_on_player_move)
 	add_child(player)
 	generateBoard()
 
 func _on_player_move(distance: int, direction: int):
 	for step in range(distance):
-		var playerFlatIndex = array.find(-1)
-		var playerCoords = getCoordsForFlatIndex(playerFlatIndex)
+		var playerCoords = getCoordsForFlatIndex(player.positionFlatIndex)
 		var success = false
 		if direction == Constants.Directions.LEFT:
 			if playerCoords.x > 0:
-				if array[playerFlatIndex - 1] == null:
-					array[playerFlatIndex - 1] = -1
-					array[playerFlatIndex] = null
+				if !grid.has(player.positionFlatIndex - 1):
+					grid.erase(player.positionFlatIndex)
+					grid[player.positionFlatIndex - 1] = player
+					player.positionFlatIndex = player.positionFlatIndex - 1
 					player.position = get_screen_position_for_coords(playerCoords + Vector2i(-1,0))
 					success = true
 		elif direction == Constants.Directions.RIGHT:
 			if playerCoords.x < boardWidth - 1:
-				if array[playerFlatIndex + 1] == null:
-					array[playerFlatIndex + 1] = -1
-					array[playerFlatIndex] = null
+				if !grid.has(player.positionFlatIndex + 1):
+					grid.erase(player.positionFlatIndex)
+					grid[player.positionFlatIndex + 1] = player
+					player.positionFlatIndex = player.positionFlatIndex + 1
 					player.position = get_screen_position_for_coords(playerCoords + Vector2i(1,0))
 					success = true
 		elif direction == Constants.Directions.DOWN:
 			if playerCoords.y < boardHeight - 1:
-				if array[playerFlatIndex + boardWidth] == null:
-					array[playerFlatIndex + boardWidth] = -1
-					array[playerFlatIndex] = null
+				if !grid.has(player.positionFlatIndex + boardWidth):
+					grid.erase(player.positionFlatIndex)
+					grid[player.positionFlatIndex + boardWidth] = player
+					player.positionFlatIndex = player.positionFlatIndex + boardWidth
 					player.position = get_screen_position_for_coords(playerCoords + Vector2i(0,1))
 					success = true
 		elif direction == Constants.Directions.UP:
 			if playerCoords.y > 0:
-				if array[playerFlatIndex - boardWidth] == null:
-					array[playerFlatIndex - boardWidth] = -1
-					array[playerFlatIndex] = null
+				if !grid.has(player.positionFlatIndex - boardWidth):
+					grid.erase(player.positionFlatIndex)
+					grid[player.positionFlatIndex - boardWidth] = player
+					player.positionFlatIndex = player.positionFlatIndex - boardWidth
 					player.position = get_screen_position_for_coords(playerCoords + Vector2i(0,-1))
 					success = true
 		if !success:
 			break
 
 func generateBoard():
-	var possibleNums = range(array.size())
+	var possibleNums = range(boardHeight * boardWidth)
 	possibleNums.erase(startPos)
 	for i in range(numPieces):
 		var flatIndex: int = possibleNums[randi_range(0, possibleNums.size() - 1)]
@@ -100,27 +101,23 @@ func generateBoard():
 						possibleColors.append([outer, inner])
 				while possibleColors.size() > 0:
 					colors = possibleColors.pop_at(randi() % possibleColors.size())
-					array[flatIndex] = colors[0]
-					array[nextCell] = colors[1]
+					grid[flatIndex] = Piece.instantiate()
+					grid[flatIndex].init(colors[0], direction, nextCell)
+					grid[nextCell] = Piece.instantiate()
+					grid[nextCell].init(colors[1], Constants.flip_direction(direction), flatIndex)
 					if !has_clears():
 						success = true
 						break
 				if !success:
-					array[flatIndex] = null
-					array[nextCell] = null
+					grid.erase(flatIndex)
+					grid.erase(nextCell)
 					break
-				var piece1 = Piece.instantiate()
-				var piece2 = Piece.instantiate()
-				piece1.init(colors[0], direction)
-				piece2.init(colors[1], Constants.flip_direction(direction))
-				pieces.append([piece1, piece2])
-				piece1.position = get_screen_position_for_coords(coords)
-				piece2.position = get_screen_position_for_flat_index(nextCell)
-				add_child(piece1)
-				add_child(piece2)
+				grid[flatIndex].position = get_screen_position_for_coords(coords)
+				grid[nextCell].position = get_screen_position_for_flat_index(nextCell)
+				add_child(grid[flatIndex])
+				add_child(grid[nextCell])
 				possibleNums.erase(flatIndex)
 				possibleNums.erase(nextCell)
-				success = true
 				break
 		if !success:
 			pass #todo
@@ -130,16 +127,20 @@ func has_clears() -> bool:
 	while i < boardHeight:
 		var j = 0
 		while j < boardWidth:
-			if array[i * boardWidth + j] != null:
+			if grid.has(i * boardWidth + j) && grid[i * boardWidth + j] is Piece:
 				if j <= boardWidth - clearSize:
 					for check in range(1, clearSize):
-						if array[i * boardWidth + j] != array[i * boardWidth + j + check]:
+						if (!grid.has(i * boardWidth + j + check)
+						|| !grid[i * boardWidth + j + check] is Piece
+						|| grid[i * boardWidth + j].color != grid[i * boardWidth + j + check].color):
 							break
 						if check == clearSize - 1:
 							return true
 				if i <= boardHeight - clearSize:
 					for check in range(1, clearSize):
-						if array[i * boardWidth + j] != array[(i + check) * boardWidth + j]:
+						if (!grid.has((i + check) * boardWidth + j)
+						|| !grid[(i + check) * boardWidth + j] is Piece
+						|| grid[i * boardWidth + j].color != grid[(i + check) * boardWidth + j].color):
 							break
 						if check == clearSize - 1:
 							return true
