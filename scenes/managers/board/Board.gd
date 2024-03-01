@@ -29,42 +29,35 @@ func _ready():
 
 func _on_player_move(distance: int, direction: int):
 	for step in range(distance):
-		var playerCoords = getCoordsForFlatIndex(player.positionFlatIndex)
-		var success = false
-		if direction == Constants.Directions.LEFT:
-			if playerCoords.x > 0:
-				if !grid.has(player.positionFlatIndex - 1):
-					grid.erase(player.positionFlatIndex)
-					grid[player.positionFlatIndex - 1] = player
-					player.positionFlatIndex = player.positionFlatIndex - 1
-					player.position = get_screen_position_for_coords(playerCoords + Vector2i(-1,0))
-					success = true
-		elif direction == Constants.Directions.RIGHT:
-			if playerCoords.x < boardWidth - 1:
-				if !grid.has(player.positionFlatIndex + 1):
-					grid.erase(player.positionFlatIndex)
-					grid[player.positionFlatIndex + 1] = player
-					player.positionFlatIndex = player.positionFlatIndex + 1
-					player.position = get_screen_position_for_coords(playerCoords + Vector2i(1,0))
-					success = true
-		elif direction == Constants.Directions.DOWN:
-			if playerCoords.y < boardHeight - 1:
-				if !grid.has(player.positionFlatIndex + boardWidth):
-					grid.erase(player.positionFlatIndex)
-					grid[player.positionFlatIndex + boardWidth] = player
-					player.positionFlatIndex = player.positionFlatIndex + boardWidth
-					player.position = get_screen_position_for_coords(playerCoords + Vector2i(0,1))
-					success = true
-		elif direction == Constants.Directions.UP:
-			if playerCoords.y > 0:
-				if !grid.has(player.positionFlatIndex - boardWidth):
-					grid.erase(player.positionFlatIndex)
-					grid[player.positionFlatIndex - boardWidth] = player
-					player.positionFlatIndex = player.positionFlatIndex - boardWidth
-					player.position = get_screen_position_for_coords(playerCoords + Vector2i(0,-1))
-					success = true
+		var success = push(player.positionFlatIndex, direction)
 		if !success:
 			break
+
+func push(start: int, direction: int) -> bool:
+	var travellerCoords = getCoordsForFlatIndex(start)
+	var success = false
+	var destination: int = -1
+	if direction == Constants.Directions.LEFT:
+		if travellerCoords.x > 0:
+			destination = start - 1
+	elif direction == Constants.Directions.RIGHT:
+		if travellerCoords.x < boardWidth - 1:
+			destination = start + 1
+	elif direction == Constants.Directions.DOWN:
+		if travellerCoords.y < boardHeight - 1:
+			destination = start + boardWidth
+	elif direction == Constants.Directions.UP:
+		if travellerCoords.y > 0:
+			destination = start - boardWidth
+	if destination > -1:
+		if !grid.has(destination) || push(destination, direction):
+			grid[destination] = grid[start]
+			grid.erase(start)
+			if grid[destination] is Player:
+				player.positionFlatIndex = destination
+			grid[destination].position = get_screen_position_for_flat_index(destination)
+			success = true
+	return success
 
 func generateBoard():
 	var possibleNums = range(boardHeight * boardWidth)

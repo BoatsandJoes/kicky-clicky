@@ -7,8 +7,8 @@ signal move(distance: int, direction: int)
 var positionFlatIndex: int
 var direction: int = Constants.Directions.RIGHT
 var moving: bool = false
-var moveThreshold: float = 0.1
-var moveProgress: float = -0.05
+var moveThreshold: float = 0.15
+var moveProgress: float = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -27,7 +27,7 @@ func change_direction(direction: int):
 
 func stop_moving():
 	moving = false
-	moveProgress = -0.05
+	moveProgress = 0
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
