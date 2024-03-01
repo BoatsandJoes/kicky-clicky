@@ -4,7 +4,7 @@ class_name Board
 var boardHeight: int = 9
 var boardWidth: int = 13
 var cellSize: int = 36
-var numPieces: int = 45
+var numPieces: int = 10
 var numColors: int = 3
 var clearSize: int = 3
 var startPos: int = boardWidth / 2 + 1 + boardWidth * (boardHeight / 2 + 1)
@@ -29,11 +29,11 @@ func _ready():
 
 func _on_player_move(distance: int, direction: int):
 	for step in range(distance):
-		var success = push(player.positionFlatIndex, direction)
-		if !success:
+		if push(player.positionFlatIndex, direction) == -1:
 			break
 
-func push(start: int, direction: int) -> bool:
+
+func can_push(start: int, direction: int) -> bool:
 	var travellerCoords = getCoordsForFlatIndex(start)
 	var success = false
 	var destination: int = -1
@@ -50,14 +50,46 @@ func push(start: int, direction: int) -> bool:
 		if travellerCoords.y > 0:
 			destination = start - boardWidth
 	if destination > -1:
-		if !grid.has(destination) || push(destination, direction):
+		if (grid[start] is Piece && grid[start].pairedPieceIndex != null
+		&& grid[grid[start].pairedPieceIndex].pairDirection != direction): #this pair will be pushed as a loose piece
+			grid[grid[start].pairedPieceIndex].pairedPieceIndex = null
+			success = can_push(grid[start].pairedPieceIndex, direction)
+			grid[grid[start].pairedPieceIndex].pairedPieceIndex = start
+		else:
+			success = true #so far so good. Hey, that's--
+		if success && grid.has(destination):
+			success = can_push(destination, direction)
+	return success
+
+func push(start: int, direction: int) -> int:
+	var destination: int = -1
+	if(can_push(start, direction)):
+		var travellerCoords = getCoordsForFlatIndex(start)
+		if direction == Constants.Directions.LEFT:
+			if travellerCoords.x > 0:
+				destination = start - 1
+		elif direction == Constants.Directions.RIGHT:
+			if travellerCoords.x < boardWidth - 1:
+				destination = start + 1
+		elif direction == Constants.Directions.DOWN:
+			if travellerCoords.y < boardHeight - 1:
+				destination = start + boardWidth
+		elif direction == Constants.Directions.UP:
+			if travellerCoords.y > 0:
+				destination = start - boardWidth
+		if destination > -1:
+			if grid[start] is Piece && grid[start].pairedPieceIndex != null:
+				grid[grid[start].pairedPieceIndex].pairedPieceIndex = null
+				grid[start].pairedPieceIndex = push(grid[start].pairedPieceIndex, direction)
+				grid[grid[start].pairedPieceIndex].pairedPieceIndex = destination
+			if grid.has(destination): #if our paired piece is there, it will be pushed ahead already.
+				push(destination, direction)
+			if grid[start] is Player:
+				player.positionFlatIndex = destination
 			grid[destination] = grid[start]
 			grid.erase(start)
-			if grid[destination] is Player:
-				player.positionFlatIndex = destination
 			grid[destination].position = get_screen_position_for_flat_index(destination)
-			success = true
-	return success
+	return destination
 
 func generateBoard():
 	var possibleNums = range(boardHeight * boardWidth)
