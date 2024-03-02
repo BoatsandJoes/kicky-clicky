@@ -75,7 +75,8 @@ func get_kicked(sourcePositionFlatIndex: int, direction: int):
 			if grid[sourcePositionFlatIndex].pairDirection != direction:
 				spin(sourcePositionFlatIndex, direction)
 			else:
-				grid[grid[sourcePositionFlatIndex].pairedPieceIndex].launch(direction) #launch leading pair
+				grid[grid[sourcePositionFlatIndex].pairedPieceIndex].launch(direction)
+				grid[sourcePositionFlatIndex].launch()
 		else:
 			grid[sourcePositionFlatIndex].launch(direction) #launch single or player
 
@@ -95,8 +96,30 @@ func spin(spinnerFlatIndex: int, direction: int):
 		targetCoords = Vector2i(fulcrumCoords.x + 1, fulcrumCoords.y)
 	var targetFlatIndex = null
 	var wallkickedFulcrumNewFlatIndex = null
-	if targetCoords.x < 0 || targetCoords.x >= boardWidth || targetCoords.y < 0 || targetCoords.y >= boardHeight:
-		pass #todo wallkick off the playfield wall
+	if targetCoords.x < 0:
+		#wallkick off the playfield wall
+		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x + 1, fulcrumCoords.y))
+		if !grid.has(testFulcrumFlatIndex):
+			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
+			targetFlatIndex = fulcrumFlatIndex
+	elif targetCoords.x >= boardWidth:
+		#wallkick off the playfield wall
+		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x - 1, fulcrumCoords.y))
+		if !grid.has(testFulcrumFlatIndex):
+			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
+			targetFlatIndex = fulcrumFlatIndex
+	elif targetCoords.y < 0:
+		#wallkick off the playfield wall
+		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x, fulcrumCoords.y + 1))
+		if !grid.has(testFulcrumFlatIndex):
+			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
+			targetFlatIndex = fulcrumFlatIndex
+	elif targetCoords.y >= boardHeight:
+		#wallkick off the playfield wall
+		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x, fulcrumCoords.y - 1))
+		if !grid.has(testFulcrumFlatIndex):
+			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
+			targetFlatIndex = fulcrumFlatIndex
 	else:
 		var testTargetFlatIndex: int = getFlatIndexForCoords(targetCoords)
 		if grid.has(testTargetFlatIndex):
@@ -107,18 +130,20 @@ func spin(spinnerFlatIndex: int, direction: int):
 		#actually perform the rotate.
 		grid[spinnerFlatIndex].set_direction(Constants.flip_direction(direction))
 		grid[fulcrumFlatIndex].set_direction(direction)
-		grid[targetFlatIndex] = grid[spinnerFlatIndex]
-		grid.erase(spinnerFlatIndex)
-		grid[fulcrumFlatIndex].pairedPieceIndex = targetFlatIndex
-		cellsToCheckForClears.append(targetFlatIndex)
-		grid[targetFlatIndex].position = get_screen_position_for_flat_index(targetFlatIndex)
 		if wallkickedFulcrumNewFlatIndex != null:
-			grid[wallkickedFulcrumNewFlatIndex] = grid[fulcrumFlatIndex]
-			grid.erase(fulcrumFlatIndex)
-			grid[targetFlatIndex].pairedPieceIndex = wallkickedFulcrumNewFlatIndex
-			cellsToCheckForClears.append(wallkickedFulcrumNewFlatIndex)
-			grid[wallkickedFulcrumNewFlatIndex].position = get_screen_position_for_flat_index(fulcrumFlatIndex)
+			rotate_half_of_pair(wallkickedFulcrumNewFlatIndex, fulcrumFlatIndex, targetFlatIndex)
+			rotate_half_of_pair(targetFlatIndex, spinnerFlatIndex, wallkickedFulcrumNewFlatIndex)
+		else:
+			rotate_half_of_pair(targetFlatIndex, spinnerFlatIndex, fulcrumFlatIndex)
+			grid[fulcrumFlatIndex].pairedPieceIndex = targetFlatIndex
 		check_clears()
+
+func rotate_half_of_pair(newFlatIndex: int, oldFlatIndex: int, newPairedIndex: int):
+	grid[newFlatIndex] = grid[oldFlatIndex]
+	grid.erase(oldFlatIndex)
+	grid[newFlatIndex].pairedPieceIndex = newPairedIndex
+	cellsToCheckForClears.append(newFlatIndex)
+	grid[newFlatIndex].position = get_screen_position_for_flat_index(newFlatIndex)
 
 func check_clears():
 	while cellsToCheckForClears.size() > 0:
