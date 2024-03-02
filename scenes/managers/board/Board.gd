@@ -4,7 +4,7 @@ class_name Board
 var boardHeight: int = 9
 var boardWidth: int = 13
 var cellSize: int = 36
-var numPieces: int = 10
+var numPieces: int = 45
 var numColors: int = 3
 var clearSize: int = 3
 var startPos: int = boardWidth / 2 + 1 + boardWidth * (boardHeight / 2 + 1)
@@ -12,6 +12,7 @@ var grid: Dictionary = {}
 var Piece = preload("res://scenes/actors/Piece.tscn")
 var Player = preload("res://scenes/actors/Player.tscn")
 var player: Player
+var cellsToCheckForClears: PackedInt32Array = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,6 +25,7 @@ func _ready():
 	grid[startPos] = player
 	player.positionFlatIndex = startPos
 	player.move.connect(_on_player_move)
+	player.kick.connect(_on_player_kick)
 	add_child(player)
 	generateBoard()
 
@@ -31,7 +33,59 @@ func _on_player_move(distance: int, direction: int):
 	for step in range(distance):
 		if push(player.positionFlatIndex, direction) == -1:
 			break
+		check_clears()
 
+func _on_player_kick():
+	kick(player.positionFlatIndex, player.direction)
+
+func kick(sourcePositionFlatIndex, direction):
+	var target: int = -1
+	var kickerCoords: Vector2i = getCoordsForFlatIndex(sourcePositionFlatIndex)
+	if direction == Constants.Directions.LEFT:
+		if kickerCoords.x > 0:
+			target = sourcePositionFlatIndex - 1
+	elif direction == Constants.Directions.RIGHT:
+		if kickerCoords.x < boardWidth - 1:
+			target = sourcePositionFlatIndex + 1
+	elif direction == Constants.Directions.DOWN:
+		if kickerCoords.y < boardHeight - 1:
+			target = sourcePositionFlatIndex + boardWidth
+	elif direction == Constants.Directions.UP:
+		if kickerCoords.y > 0:
+			target = sourcePositionFlatIndex - boardWidth
+	if target == -1:
+		grid[sourcePositionFlatIndex].stop_launching()
+		if grid[sourcePositionFlatIndex] is Piece:
+			cellsToCheckForClears.append(sourcePositionFlatIndex)
+			if grid[sourcePositionFlatIndex].pairedPieceIndex != null:
+				cellsToCheckForClears.append(grid[sourcePositionFlatIndex].pairedPieceIndex)
+			check_clears()
+	elif grid.has(target):
+		grid[sourcePositionFlatIndex].stop_launching()
+		if grid[sourcePositionFlatIndex] is Piece:
+			cellsToCheckForClears.append(sourcePositionFlatIndex)
+			if grid[sourcePositionFlatIndex].pairedPieceIndex != null:
+				cellsToCheckForClears.append(grid[sourcePositionFlatIndex].pairedPieceIndex)
+			check_clears()
+		get_kicked(target, direction) #todo if this was cleared, it can no longer apply clack. fix?
+
+func get_kicked(sourcePositionFlatIndex: int, direction: int):
+	if grid[sourcePositionFlatIndex] != null:
+		if grid[sourcePositionFlatIndex].pairedPieceIndex != null:
+			if grid[sourcePositionFlatIndex].pairDirection != direction:
+				spin(sourcePositionFlatIndex, direction)
+			else:
+				grid[grid[sourcePositionFlatIndex].pairedPieceIndex].launch(direction) #launch leading pair
+		else:
+			grid[sourcePositionFlatIndex].launch(direction) #launch single or player
+
+func spin(sourcePositionFlatIndex: int, direction: int):
+	pass #todo
+
+func check_clears():
+	while cellsToCheckForClears.size() > 0:
+		#todo check
+		cellsToCheckForClears.remove_at(0)
 
 func can_push(start: int, direction: int) -> bool:
 	var travellerCoords = getCoordsForFlatIndex(start)
@@ -50,7 +104,7 @@ func can_push(start: int, direction: int) -> bool:
 		if travellerCoords.y > 0:
 			destination = start - boardWidth
 	if destination > -1:
-		if (grid[start] is Piece && grid[start].pairedPieceIndex != null
+		if (grid[start].pairedPieceIndex != null
 		&& grid[grid[start].pairedPieceIndex].pairDirection != direction): #this pair will be pushed as a loose piece
 			grid[grid[start].pairedPieceIndex].pairedPieceIndex = null
 			success = can_push(grid[start].pairedPieceIndex, direction)
@@ -78,15 +132,17 @@ func push(start: int, direction: int) -> int:
 			if travellerCoords.y > 0:
 				destination = start - boardWidth
 		if destination > -1:
-			if grid[start] is Piece && grid[start].pairedPieceIndex != null:
+			if grid[start].pairedPieceIndex != null:
 				grid[grid[start].pairedPieceIndex].pairedPieceIndex = null
 				grid[start].pairedPieceIndex = push(grid[start].pairedPieceIndex, direction)
 				grid[grid[start].pairedPieceIndex].pairedPieceIndex = destination
 			if grid.has(destination): #if our paired piece is there, it will be pushed ahead already.
 				push(destination, direction)
+			grid[destination] = grid[start]
 			if grid[start] is Player:
 				player.positionFlatIndex = destination
-			grid[destination] = grid[start]
+			else:
+				cellsToCheckForClears.append(destination)
 			grid.erase(start)
 			grid[destination].position = get_screen_position_for_flat_index(destination)
 	return destination

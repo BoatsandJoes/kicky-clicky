@@ -5,6 +5,7 @@ var color: int
 var pairDirection
 var pairedPieceIndex
 var cellSize: int = 36
+var launchDirection = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -39,6 +40,12 @@ func set_direction(pairDirection: int):
 		points = [Vector2(cellSize - cellSize/4,7), Vector2(cellSize - cellSize/4,cellSize - 7),
 			Vector2(cellSize, cellSize - 7), Vector2(cellSize, 7)]
 	$Polygon2D.set_polygon(points)
+
+func launch(direction: int):
+	launchDirection = direction
+
+func stop_launching():
+	launchDirection = null
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

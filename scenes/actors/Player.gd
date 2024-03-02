@@ -9,12 +9,16 @@ var direction: int = Constants.Directions.RIGHT
 var moving: bool = false
 var moveThreshold: float = 0.15
 var moveProgress: float = 0
+var launchDirection = null
+var pairedPieceIndex = null #always null, just here to avoid access errors
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
 
 func change_direction(direction: int):
+	if self.direction != direction:
+		moveProgress = 0
 	self.direction = direction
 	if direction == Constants.Directions.RIGHT:
 		$AnimationPlayer.play("walk_right")
@@ -25,9 +29,14 @@ func change_direction(direction: int):
 	elif direction == Constants.Directions.DOWN:
 		$AnimationPlayer.play("walk_down")
 
+func launch(direction: int):
+	launchDirection = direction
+
+func stop_launching():
+	launchDirection = null
+
 func stop_moving():
 	moving = false
-	moveProgress = 0
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -44,7 +53,7 @@ func _physics_process(delta):
 func _input(event):
 	if event.is_action_pressed("kick"):
 		emit_signal("kick")
-	if event.is_action_pressed("up"):
+	elif event.is_action_pressed("up"):
 		if moving && direction == Constants.Directions.DOWN:
 			stop_moving()
 		else:
