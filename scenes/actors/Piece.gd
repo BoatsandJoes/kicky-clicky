@@ -39,6 +39,8 @@ func set_direction(pairDirection: int):
 	elif pairDirection == Constants.Directions.RIGHT:
 		points = [Vector2(cellSize - cellSize/4,7), Vector2(cellSize - cellSize/4,cellSize - 7),
 			Vector2(cellSize, cellSize - 7), Vector2(cellSize, 7)]
+	else:
+		points = PackedVector2Array()
 	$Polygon2D.set_polygon(points)
 
 func launch(direction: int):

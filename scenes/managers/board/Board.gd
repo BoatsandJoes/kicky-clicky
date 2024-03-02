@@ -13,6 +13,7 @@ var Piece = preload("res://scenes/actors/Piece.tscn")
 var Player = preload("res://scenes/actors/Player.tscn")
 var player: Player
 var cellsToCheckForClears: PackedInt32Array = []
+var cellsToClear: PackedInt32Array = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -193,11 +194,6 @@ func get_vector_for_direction(direction: int) -> Vector2i:
 	else:
 		return Vector2i(0, 1)
 
-func check_clears():
-	while cellsToCheckForClears.size() > 0:
-		#todo check
-		cellsToCheckForClears.remove_at(0)
-
 func can_push(start: int, direction: int) -> bool:
 	var travellerCoords = getCoordsForFlatIndex(start)
 	var success = false
@@ -315,6 +311,19 @@ func generateBoard():
 		if !success:
 			pass #todo
 
+func check_clears():
+	var setsOfClears: Array[PackedInt32Array] = []
+	while cellsToCheckForClears.size() > 0:
+		if grid.has(cellsToCheckForClears[0]):
+			var piece = grid[cellsToCheckForClears[0]]
+			if piece is Piece:
+				pass
+				#todo check
+		# Done checking this cell
+		cellsToCheckForClears.remove_at(0)
+	for clear in setsOfClears:
+		cellsToClear.append_array(clear)
+
 func has_clears() -> bool:
 	var i = 0
 	while i < boardHeight:
@@ -356,6 +365,19 @@ func getCoordsForFlatIndex(index: int) -> Vector2i:
 func init():
 	pass
 
+func _physics_process(delta):
+	for cell in cellsToClear:
+		if grid.has(cell):
+			var piece = grid[cell]
+			if piece is Piece:
+				if piece.pairedPieceIndex && grid.has(piece.pairedPieceIndex):
+					var pair = grid[piece.pairedPieceIndex]
+					if pair is Piece:
+						pair.set_direction(null)
+						pair.pairedPieceIndex = null
+				grid.erase(cell)
+				remove_child(piece)
+	cellsToClear.clear()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
