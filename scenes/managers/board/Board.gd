@@ -79,8 +79,46 @@ func get_kicked(sourcePositionFlatIndex: int, direction: int):
 		else:
 			grid[sourcePositionFlatIndex].launch(direction) #launch single or player
 
-func spin(sourcePositionFlatIndex: int, direction: int):
-	pass #todo
+func spin(spinnerFlatIndex: int, direction: int):
+	var fulcrumFlatIndex: int = grid[spinnerFlatIndex].pairedPieceIndex
+	var fulcrumCoords: Vector2i = getCoordsForFlatIndex(fulcrumFlatIndex)
+	var spinnerCoords: Vector2i = getCoordsForFlatIndex(spinnerFlatIndex)
+	var targetCoords: Vector2i
+	#we trust our caller and assume that kick direction and fulcrum direction are perpendicular
+	if direction == Constants.Directions.UP:
+		targetCoords = Vector2i(fulcrumCoords.x, fulcrumCoords.y - 1)
+	elif direction == Constants.Directions.LEFT:
+		targetCoords = Vector2i(fulcrumCoords.x - 1, fulcrumCoords.y)
+	elif direction == Constants.Directions.DOWN:
+		targetCoords = Vector2i(fulcrumCoords.x, fulcrumCoords.y + 1)
+	elif direction == Constants.Directions.RIGHT:
+		targetCoords = Vector2i(fulcrumCoords.x + 1, fulcrumCoords.y)
+	var targetFlatIndex = null
+	var wallkickedFulcrumNewFlatIndex = null
+	if targetCoords.x < 0 || targetCoords.x >= boardWidth || targetCoords.y < 0 || targetCoords.y >= boardHeight:
+		pass #todo wallkick off the playfield wall
+	else:
+		var testTargetFlatIndex: int = getFlatIndexForCoords(targetCoords)
+		if grid.has(testTargetFlatIndex):
+			pass #todo wallkick off another piece
+		else:
+			targetFlatIndex = testTargetFlatIndex
+	if targetFlatIndex != null:
+		#actually perform the rotate.
+		grid[spinnerFlatIndex].set_direction(Constants.flip_direction(direction))
+		grid[fulcrumFlatIndex].set_direction(direction)
+		grid[targetFlatIndex] = grid[spinnerFlatIndex]
+		grid.erase(spinnerFlatIndex)
+		grid[fulcrumFlatIndex].pairedPieceIndex = targetFlatIndex
+		cellsToCheckForClears.append(targetFlatIndex)
+		grid[targetFlatIndex].position = get_screen_position_for_flat_index(targetFlatIndex)
+		if wallkickedFulcrumNewFlatIndex != null:
+			grid[wallkickedFulcrumNewFlatIndex] = grid[fulcrumFlatIndex]
+			grid.erase(fulcrumFlatIndex)
+			grid[targetFlatIndex].pairedPieceIndex = wallkickedFulcrumNewFlatIndex
+			cellsToCheckForClears.append(wallkickedFulcrumNewFlatIndex)
+			grid[wallkickedFulcrumNewFlatIndex].position = get_screen_position_for_flat_index(fulcrumFlatIndex)
+		check_clears()
 
 func check_clears():
 	while cellsToCheckForClears.size() > 0:
@@ -105,7 +143,8 @@ func can_push(start: int, direction: int) -> bool:
 			destination = start - boardWidth
 	if destination > -1:
 		if (grid[start].pairedPieceIndex != null
-		&& grid[grid[start].pairedPieceIndex].pairDirection != direction): #this pair will be pushed as a loose piece
+		#this pair will be pushed as a loose piece
+		&& grid[grid[start].pairedPieceIndex].pairDirection != direction):
 			grid[grid[start].pairedPieceIndex].pairedPieceIndex = null
 			success = can_push(grid[start].pairedPieceIndex, direction)
 			grid[grid[start].pairedPieceIndex].pairedPieceIndex = start
