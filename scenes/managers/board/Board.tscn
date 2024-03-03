@@ -6,4 +6,4 @@
 script = ExtResource("1_vw4qf")
 
 [node name="Polygon2D" type="Polygon2D" parent="."]
-color = Color(0.380392, 0.380392, 0.380392, 1)
+color = Color(0.0980392, 0.0980392, 0.0980392, 1)

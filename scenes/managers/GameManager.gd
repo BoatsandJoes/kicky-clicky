@@ -29,7 +29,7 @@ func _ready():
 	add_child(music)
 	board = Board.instantiate()
 	board.init()
-	board.position = Vector2(10, 0)
+	board.position = Vector2(18, 18)
 	add_child(board)
 	play_random_song()
 	gameTimer = GameTimer.instantiate()
