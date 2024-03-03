@@ -3,10 +3,11 @@ class_name Board
 
 var boardHeight: int = 10
 var boardWidth: int = 13
+var outsideWalk: bool = true
 var cellSize: int = 36
-var numPieces: int = 45
+var numPieces: int = 40
 var numColors: int = 3
-var clearSize: int = 2
+var clearSize: int = 3
 var startPos: int = boardWidth / 2 + 1 + boardWidth * (boardHeight / 2 + 1)
 var grid: Dictionary = {}
 var Piece = preload("res://scenes/actors/Piece.tscn")
@@ -43,16 +44,16 @@ func kick(sourcePositionFlatIndex, direction):
 	var target: int = -1
 	var kickerCoords: Vector2i = getCoordsForFlatIndex(sourcePositionFlatIndex)
 	if direction == Constants.Directions.LEFT:
-		if kickerCoords.x > 0:
+		if kickerCoords.x > 1:
 			target = sourcePositionFlatIndex - 1
 	elif direction == Constants.Directions.RIGHT:
-		if kickerCoords.x < boardWidth - 1:
+		if kickerCoords.x < boardWidth - 2:
 			target = sourcePositionFlatIndex + 1
 	elif direction == Constants.Directions.DOWN:
-		if kickerCoords.y < boardHeight - 1:
+		if kickerCoords.y < boardHeight - 2:
 			target = sourcePositionFlatIndex + boardWidth
 	elif direction == Constants.Directions.UP:
-		if kickerCoords.y > 0:
+		if kickerCoords.y > 1:
 			target = sourcePositionFlatIndex - boardWidth
 	if target == -1:
 		grid[sourcePositionFlatIndex].stop_launching()
@@ -97,25 +98,25 @@ func spin(spinnerFlatIndex: int, direction: int):
 		targetCoords = Vector2i(fulcrumCoords.x + 1, fulcrumCoords.y)
 	var targetFlatIndex = null
 	var wallkickedFulcrumNewFlatIndex = null
-	if targetCoords.x < 0:
+	if targetCoords.x < 1:
 		#wallkick off the playfield wall
 		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x + 1, fulcrumCoords.y))
 		if !grid.has(testFulcrumFlatIndex):
 			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
 			targetFlatIndex = fulcrumFlatIndex
-	elif targetCoords.x >= boardWidth:
+	elif targetCoords.x >= boardWidth - 1:
 		#wallkick off the playfield wall
 		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x - 1, fulcrumCoords.y))
 		if !grid.has(testFulcrumFlatIndex):
 			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
 			targetFlatIndex = fulcrumFlatIndex
-	elif targetCoords.y < 0:
+	elif targetCoords.y < 1:
 		#wallkick off the playfield wall
 		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x, fulcrumCoords.y + 1))
 		if !grid.has(testFulcrumFlatIndex):
 			wallkickedFulcrumNewFlatIndex = testFulcrumFlatIndex
 			targetFlatIndex = fulcrumFlatIndex
-	elif targetCoords.y >= boardHeight:
+	elif targetCoords.y >= boardHeight - 1:
 		#wallkick off the playfield wall
 		var testFulcrumFlatIndex = getFlatIndexForCoords(Vector2i(fulcrumCoords.x, fulcrumCoords.y - 1))
 		if !grid.has(testFulcrumFlatIndex):
@@ -130,17 +131,17 @@ func spin(spinnerFlatIndex: int, direction: int):
 			testTargetFlatIndex = getFlatIndexForCoords(testTargetCoords)
 			wallkickedFulcrumNewFlatIndex = spinnerFlatIndex
 			# New fulcrum is in a location previously covered by this piece, so we only have to check half
-			if (grid.has(testTargetFlatIndex) || testTargetCoords.x < 0 || testTargetCoords.y < 0
-			|| testTargetCoords.x >= boardWidth || testTargetCoords.y >= boardHeight):
+			if (grid.has(testTargetFlatIndex) || testTargetCoords.x < 1 || testTargetCoords.y < 1
+			|| testTargetCoords.x >= boardWidth - 1 || testTargetCoords.y >= boardHeight - 1):
 				#Second check
 				testTargetFlatIndex = fulcrumFlatIndex
 				var testWallkickedFulcrumNewCoords: Vector2 = (fulcrumCoords +
 						get_vector_for_direction(Constants.flip_direction(direction)))
 				wallkickedFulcrumNewFlatIndex = getFlatIndexForCoords(testWallkickedFulcrumNewCoords)
 				# Spinner is now in a location previously covered by this piece, so we only have to check half
-				if (grid.has(wallkickedFulcrumNewFlatIndex) || testWallkickedFulcrumNewCoords.x < 0
-				|| testWallkickedFulcrumNewCoords.y < 0 || testWallkickedFulcrumNewCoords.x >= boardWidth
-				|| testWallkickedFulcrumNewCoords.y >= boardHeight):
+				if (grid.has(wallkickedFulcrumNewFlatIndex) || testWallkickedFulcrumNewCoords.x < 1
+				|| testWallkickedFulcrumNewCoords.y < 1 || testWallkickedFulcrumNewCoords.x >= boardWidth - 1
+				|| testWallkickedFulcrumNewCoords.y >= boardHeight - 1):
 					#Third check
 					var offset: Vector2i = get_vector_for_direction(grid[spinnerFlatIndex].pairDirection)
 					var testSpinnerCoords = targetCoords + offset
@@ -148,10 +149,10 @@ func spin(spinnerFlatIndex: int, direction: int):
 					testWallkickedFulcrumNewCoords = fulcrumCoords + offset
 					wallkickedFulcrumNewFlatIndex = getFlatIndexForCoords(testWallkickedFulcrumNewCoords)
 					if (!grid.has(testTargetFlatIndex) && !grid.has(wallkickedFulcrumNewFlatIndex)
-					&& testWallkickedFulcrumNewCoords.x >= 0 && testWallkickedFulcrumNewCoords.y < boardHeight
-					&& testWallkickedFulcrumNewCoords.y >= 0 && testWallkickedFulcrumNewCoords.x < boardWidth
-					&& testSpinnerCoords.x >= 0 && testSpinnerCoords.y < boardHeight
-					&& testSpinnerCoords.y >= 0 && testSpinnerCoords.x < boardWidth):
+					&& testWallkickedFulcrumNewCoords.x >= 1 && testWallkickedFulcrumNewCoords.y < boardHeight - 1
+					&& testWallkickedFulcrumNewCoords.y >= 1 && testWallkickedFulcrumNewCoords.x < boardWidth - 1
+					&& testSpinnerCoords.x >= 1 && testSpinnerCoords.y < boardHeight - 1
+					&& testSpinnerCoords.y >= 1 && testSpinnerCoords.x < boardWidth - 1):
 						targetFlatIndex = testTargetFlatIndex
 				else:
 					targetFlatIndex = testTargetFlatIndex
@@ -199,16 +200,16 @@ func can_push(start: int, direction: int) -> bool:
 	var success = false
 	var destination: int = -1
 	if direction == Constants.Directions.LEFT:
-		if travellerCoords.x > 0:
+		if travellerCoords.x > 1 || (grid[start] is Player && travellerCoords.x == 1):
 			destination = start - 1
 	elif direction == Constants.Directions.RIGHT:
-		if travellerCoords.x < boardWidth - 1:
+		if travellerCoords.x < boardWidth - 2  || (grid[start] is Player && travellerCoords.x == boardWidth - 2):
 			destination = start + 1
 	elif direction == Constants.Directions.DOWN:
-		if travellerCoords.y < boardHeight - 1:
+		if travellerCoords.y < boardHeight - 2 || (grid[start] is Player && travellerCoords.y == boardHeight - 2):
 			destination = start + boardWidth
 	elif direction == Constants.Directions.UP:
-		if travellerCoords.y > 0:
+		if travellerCoords.y > 1 || (grid[start] is Player && travellerCoords.y == 1):
 			destination = start - boardWidth
 	if destination > -1:
 		if (grid[start].pairedPieceIndex != null
@@ -228,16 +229,16 @@ func push(start: int, direction: int) -> int:
 	if(can_push(start, direction)):
 		var travellerCoords = getCoordsForFlatIndex(start)
 		if direction == Constants.Directions.LEFT:
-			if travellerCoords.x > 0:
+			if travellerCoords.x > 1 || (grid[start] is Player && travellerCoords.x == 1):
 				destination = start - 1
 		elif direction == Constants.Directions.RIGHT:
-			if travellerCoords.x < boardWidth - 1:
+			if travellerCoords.x < boardWidth - 2 || (grid[start] is Player && travellerCoords.x == boardWidth - 2):
 				destination = start + 1
 		elif direction == Constants.Directions.DOWN:
-			if travellerCoords.y < boardHeight - 1:
+			if travellerCoords.y < boardHeight - 2 || (grid[start] is Player && travellerCoords.y == boardHeight-2):
 				destination = start + boardWidth
 		elif direction == Constants.Directions.UP:
-			if travellerCoords.y > 0:
+			if travellerCoords.y > 1 || (grid[start] is Player && travellerCoords.y == 1):
 				destination = start - boardWidth
 		if destination > -1:
 			if grid[start].pairedPieceIndex != null:
@@ -258,17 +259,25 @@ func push(start: int, direction: int) -> int:
 func generateBoard():
 	var possibleNums = range(boardHeight * boardWidth)
 	possibleNums.erase(startPos)
+	for i in range(boardWidth):
+		possibleNums.erase(i)
+	for i in range((boardHeight - 1) * boardWidth, boardHeight * boardWidth):
+		possibleNums.erase(i)
+	for i in range(0, boardHeight * boardWidth, boardWidth):
+		possibleNums.erase(i)
+	for i in range(boardWidth - 1, boardHeight * boardWidth, boardWidth):
+		possibleNums.erase(i)
 	for i in range(numPieces):
 		var flatIndex: int = possibleNums[randi_range(0, possibleNums.size() - 1)]
 		var coords: Vector2 = getCoordsForFlatIndex(flatIndex)
 		var possibleDirections = []
-		if coords.y != 0:
+		if coords.y > 1:
 			possibleDirections.append(Constants.Directions.UP)
-		if coords.y != boardHeight - 1:
+		if coords.y < boardHeight - 2:
 			possibleDirections.append(Constants.Directions.DOWN)
-		if coords.x != 0:
+		if coords.x > 1:
 			possibleDirections.append(Constants.Directions.LEFT)
-		if coords.x != boardWidth - 1:
+		if coords.x < boardWidth - 2:
 			possibleDirections.append(Constants.Directions.RIGHT)
 		var success: bool = false
 		while possibleDirections.size() > 0:
@@ -343,10 +352,10 @@ func check_clears():
 func scan_clears_in_direction(direction: Vector2i, testPieceCoords: Vector2i,
 testPieceFlatIndex: int, color: int) -> PackedInt32Array:
 	var clear: PackedInt32Array = []
-	while ((direction.x == 0 && (direction.y < 0 || testPieceCoords.y < boardHeight - 1)
-	&& (direction.y > 0 || testPieceCoords.y > 0))
-	|| (direction.y == 0 && (direction.x < 0 || testPieceCoords.x < boardWidth - 1)
-	&& (direction.x > 0 || testPieceCoords.x > 0))):
+	while ((direction.x == 0 && (direction.y < 0 || testPieceCoords.y < boardHeight - 2)
+	&& (direction.y > 0 || testPieceCoords.y > 1))
+	|| (direction.y == 0 && (direction.x < 0 || testPieceCoords.x < boardWidth - 2)
+	&& (direction.x > 0 || testPieceCoords.x > 1))):
 		testPieceCoords = testPieceCoords + direction
 		testPieceFlatIndex = getFlatIndexForCoords(testPieceCoords)
 		if grid.has(testPieceFlatIndex):
@@ -365,7 +374,7 @@ func has_clears() -> bool:
 		var j = 0
 		while j < boardWidth:
 			if grid.has(i * boardWidth + j) && grid[i * boardWidth + j] is Piece:
-				if j <= boardWidth - clearSize:
+				if j <= boardWidth - clearSize - 1:
 					for check in range(1, clearSize):
 						if (!grid.has(i * boardWidth + j + check)
 						|| !grid[i * boardWidth + j + check] is Piece
@@ -373,7 +382,7 @@ func has_clears() -> bool:
 							break
 						if check == clearSize - 1:
 							return true
-				if i <= boardHeight - clearSize:
+				if i <= boardHeight - clearSize - 1:
 					for check in range(1, clearSize):
 						if (!grid.has((i + check) * boardWidth + j)
 						|| !grid[(i + check) * boardWidth + j] is Piece
