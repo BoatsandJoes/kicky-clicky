@@ -15,6 +15,7 @@ var Player = preload("res://scenes/actors/Player.tscn")
 var player: Player
 var cellsToCheckForClears: PackedInt32Array = []
 var cellsToClear: PackedInt32Array = []
+var pushEnabled = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -246,7 +247,7 @@ func can_push(start: int, direction: int) -> bool:
 	elif direction == Constants.Directions.UP:
 		if travellerCoords.y > 1 || (grid[start] is Player && travellerCoords.y == 1):
 			destination = start - boardWidth
-	if destination > -1:
+	if destination != -1:
 		if (grid[start].pairedPieceIndex != null
 		#this pair will be pushed as a loose piece
 		&& grid[grid[start].pairedPieceIndex].pairDirection != direction):
@@ -256,7 +257,7 @@ func can_push(start: int, direction: int) -> bool:
 		else:
 			success = true #so far so good. Hey, that's--
 		if success && grid.has(destination):
-			success = can_push(destination, direction)
+			success = pushEnabled && can_push(destination, direction)
 	return success
 
 func push(start: int, direction: int) -> int:
