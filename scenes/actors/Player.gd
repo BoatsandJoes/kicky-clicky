@@ -3,13 +3,16 @@ class_name Player
 
 signal kick(direction: int)
 signal move(distance: int, direction: int)
+signal launch_advance(piece, steps)
 
 var positionFlatIndex: int
 var direction: int = Constants.Directions.RIGHT
 var moving: bool = false
 var moveThreshold: float = 0.15
 var moveProgress: float = 0
+var launchProgress: float = 0.0
 var launchDirection = null
+var launchThreshold: float = 0.5
 var pairedPieceIndex = null #always null, just here to avoid access errors
 
 # Called when the node enters the scene tree for the first time.
@@ -43,7 +46,12 @@ func _process(delta):
 	pass
 
 func _physics_process(delta):
-	if moving:
+	if launchDirection != null:
+		launchProgress = launchProgress + delta
+		if launchProgress >= launchThreshold:
+			emit_signal("launch_advance", self, launchProgress / launchThreshold)
+			launchProgress = fmod(launchProgress, launchThreshold)
+	elif moving:
 		moveProgress += delta
 		var moves = floor(moveProgress / moveThreshold)
 		if moves > 0:

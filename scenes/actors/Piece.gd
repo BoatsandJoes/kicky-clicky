@@ -1,11 +1,15 @@
 extends Node2D
 class_name Piece
 
+signal launch_advance(piece, steps)
+
 var color: int
 var pairDirection
 var pairedPieceIndex
 var cellSize: int = 36
+var launchThreshold: float = 0.05
 var launchDirection = null
+var launchProgress: float = 0.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -48,6 +52,14 @@ func launch(direction: int):
 
 func stop_launching():
 	launchDirection = null
+	launchProgress = 0.0
+
+func _physics_process(delta):
+	if launchDirection != null:
+		launchProgress = launchProgress + delta
+		if launchProgress >= launchThreshold:
+			emit_signal("launch_advance", self, launchProgress / launchThreshold)
+			launchProgress = fmod(launchProgress, launchThreshold)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
