@@ -24,7 +24,7 @@ func init(color: int, pairDirection, pairedPieceIndex):
 	$Polygon2D.position = $Polygon2D.position - Vector2(cellSize/2,cellSize/2)
 	set_direction(pairDirection)
 
-func set_direction(pairDirection: int):
+func set_direction(pairDirection):
 	self.pairDirection = pairDirection
 	var points
 	if pairDirection == Constants.Directions.UP:

@@ -1,12 +1,12 @@
 extends Node2D
 class_name Board
 
-var boardHeight: int = 9
+var boardHeight: int = 10
 var boardWidth: int = 13
 var cellSize: int = 36
 var numPieces: int = 45
 var numColors: int = 3
-var clearSize: int = 3
+var clearSize: int = 2
 var startPos: int = boardWidth / 2 + 1 + boardWidth * (boardHeight / 2 + 1)
 var grid: Dictionary = {}
 var Piece = preload("res://scenes/actors/Piece.tscn")
@@ -317,12 +317,47 @@ func check_clears():
 		if grid.has(cellsToCheckForClears[0]):
 			var piece = grid[cellsToCheckForClears[0]]
 			if piece is Piece:
-				pass
-				#todo check
+				var startPieceCoords = getCoordsForFlatIndex(cellsToCheckForClears[0])
+				#check up and down
+				var clear: PackedInt32Array = [cellsToCheckForClears[0]]
+				clear.append_array(scan_clears_in_direction(Vector2i(0, -1),
+				startPieceCoords, cellsToCheckForClears[0], piece.color))
+				clear.append_array(scan_clears_in_direction(Vector2i(0, 1),
+				startPieceCoords, cellsToCheckForClears[0], piece.color))
+				if clear.size() >= clearSize:
+					setsOfClears.append(clear)
+				#check left and right
+				clear = [cellsToCheckForClears[0]]
+				clear.append_array(scan_clears_in_direction(Vector2i(-1, 0),
+				startPieceCoords, cellsToCheckForClears[0], piece.color))
+				clear.append_array(scan_clears_in_direction(Vector2i(1, 0),
+				startPieceCoords, cellsToCheckForClears[0], piece.color))
+				if clear.size() >= clearSize:
+					setsOfClears.append(clear)
 		# Done checking this cell
 		cellsToCheckForClears.remove_at(0)
 	for clear in setsOfClears:
+		# todo score
 		cellsToClear.append_array(clear)
+
+func scan_clears_in_direction(direction: Vector2i, testPieceCoords: Vector2i,
+testPieceFlatIndex: int, color: int) -> PackedInt32Array:
+	var clear: PackedInt32Array = []
+	while ((direction.x == 0 && (direction.y < 0 || testPieceCoords.y < boardHeight - 1)
+	&& (direction.y > 0 || testPieceCoords.y > 0))
+	|| (direction.y == 0 && (direction.x < 0 || testPieceCoords.x < boardWidth - 1)
+	&& (direction.x > 0 || testPieceCoords.x > 0))):
+		testPieceCoords = testPieceCoords + direction
+		testPieceFlatIndex = getFlatIndexForCoords(testPieceCoords)
+		if grid.has(testPieceFlatIndex):
+			var testPiece = grid[testPieceFlatIndex]
+			if testPiece is Piece && testPiece.color == color:
+				clear.append(testPieceFlatIndex)
+			else:
+				break
+		else:
+			break
+	return clear
 
 func has_clears() -> bool:
 	var i = 0

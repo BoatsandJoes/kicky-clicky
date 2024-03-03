@@ -8,7 +8,7 @@ var board: Board
 func _ready():
 	board = Board.instantiate()
 	board.init()
-	board.position = Vector2(10, 10)
+	board.position = Vector2(10, 0)
 	add_child(board)
 
 
