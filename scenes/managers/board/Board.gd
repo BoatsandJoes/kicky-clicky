@@ -24,13 +24,13 @@ func _ready():
 	$Polygon2D.set_polygon(points)
 	player = Player.instantiate()
 	player.position = get_screen_position_for_flat_index(startPos)
-	grid[startPos] = player
 	player.positionFlatIndex = startPos
 	player.move.connect(_on_player_move)
 	player.kick.connect(_on_player_kick)
 	player.launch_advance.connect(_on_piece_launch_advance)
-	add_child(player)
 	generateBoard()
+	grid[startPos] = player
+	add_child(player)
 
 func _on_piece_launch_advance(piece, steps: int):
 	var index: int = grid.find_key(piece)
@@ -364,10 +364,8 @@ func generateBoard():
 			break
 	if failedPlacements > numPieces * 5:
 		for key in grid.keys():
-			if grid[key] is Piece:
-				remove_child(grid[key])
+			remove_child(grid[key])
 		grid.clear()
-		grid[startPos] = player
 		generateBoard()
 
 func check_clears():
