@@ -9,7 +9,6 @@ var music: AudioStreamPlayer
 var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR) [NCS Release] (instrumental).mp3",
 "res://assets/music/Approaching Nirvana & Alex Holmes - Darkness Comes [NCS Release] (instrumental).mp3",
 "res://assets/music/Dryskill & Max Brhon - War Machine [NCS Release] (instrumental).mp3",
-"res://assets/music/JOXION - RPM [NCS Release] (instrumental).mp3",
 "res://assets/music/JOXION - Talk That Way [NCS Release] (instrumental).mp3",
 "res://assets/music/LOUD ABOUT US! - Goes Like [NCS Release].mp3",
 "res://assets/music/Max Brhon - Humanity [NCS Release].mp3",

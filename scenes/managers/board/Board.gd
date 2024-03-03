@@ -1,11 +1,11 @@
 extends Node2D
 class_name Board
 
-var boardHeight: int = 10
-var boardWidth: int = 13
+var boardHeight: int = 9
+var boardWidth: int = 12
 var outsideWalk: bool = true
 var cellSize: int = 36
-var numPieces: int = 36
+var numPieces: int = 30
 var numColors: int = 3
 var clearSize: int = 3
 var startPos: int = boardWidth / 2 + boardWidth * (boardHeight / 2 )
