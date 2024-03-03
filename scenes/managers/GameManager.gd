@@ -3,6 +3,8 @@ class_name GameManager
 
 var Board = preload("res://scenes/managers/board/Board.tscn")
 var board: Board
+var GameTimer = preload("res://scenes/ui/GameTimer.tscn")
+var gameTimer: GameTimer
 var music: AudioStreamPlayer
 var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR) [NCS Release] (instrumental).mp3",
 "res://assets/music/Approaching Nirvana & Alex Holmes - Darkness Comes [NCS Release] (instrumental).mp3",
@@ -11,7 +13,6 @@ var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR)
 "res://assets/music/JOXION - Talk That Way [NCS Release] (instrumental).mp3",
 "res://assets/music/LOUD ABOUT US! - Goes Like [NCS Release].mp3",
 "res://assets/music/Max Brhon - Humanity [NCS Release].mp3",
-"res://assets/music/Max Brhon - Redemption [NCS Release] (instrumental).mp3",
 "res://assets/music/More Plastic & URBANO - Psycho [NCS Release] (instrumental).mp3",
 "res://assets/music/NIVIRO - Annabelle's Tea Party [NCS Release] (instrumental).mp3",
 "res://assets/music/NOYSE & ÆSTRØ - La Manera De Vivir [NCS Release] (instrumental).mp3",
@@ -33,6 +34,8 @@ func _ready():
 	board.position = Vector2(10, 0)
 	add_child(board)
 	play_random_song()
+	gameTimer = GameTimer.instantiate()
+	add_child(gameTimer)
 
 func _on_music_finished():
 	play_random_song()
