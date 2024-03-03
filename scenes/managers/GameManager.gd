@@ -14,7 +14,6 @@ var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR)
 "res://assets/music/LOUD ABOUT US! - Goes Like [NCS Release].mp3",
 "res://assets/music/Max Brhon - Humanity [NCS Release].mp3",
 "res://assets/music/More Plastic & URBANO - Psycho [NCS Release] (instrumental).mp3",
-"res://assets/music/NIVIRO - Annabelle's Tea Party [NCS Release] (instrumental).mp3",
 "res://assets/music/NOYSE & ÆSTRØ - La Manera De Vivir [NCS Release] (instrumental).mp3",
 "res://assets/music/SIIK & Alenn - Mess [NCS Release] (instrumental).mp3",
 "res://assets/music/Sam Ourt, AKIAL & Srikar - Escape (Juan Dileju & Sam Ourt VIP Mix) [NCS Release] (instrumental).mp3",
