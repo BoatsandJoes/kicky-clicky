@@ -3,7 +3,7 @@ class_name Player
 
 signal kick(direction: int)
 signal move(distance: int, direction: int)
-signal launch_advance(piece, steps)
+signal launch_advance(piece, steps: int)
 
 var positionFlatIndex: int
 var direction: int = Constants.Directions.RIGHT

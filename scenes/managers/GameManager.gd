@@ -25,6 +25,7 @@ var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR)
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	music = AudioStreamPlayer.new()
+	music.set_bus("Reduce")
 	music.finished.connect(_on_music_finished)
 	add_child(music)
 	board = Board.instantiate()

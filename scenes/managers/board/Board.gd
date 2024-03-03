@@ -28,8 +28,40 @@ func _ready():
 	player.positionFlatIndex = startPos
 	player.move.connect(_on_player_move)
 	player.kick.connect(_on_player_kick)
+	player.launch_advance.connect(_on_piece_launch_advance)
 	add_child(player)
 	generateBoard()
+
+func _on_piece_launch_advance(piece, steps: int):
+	var index: int = grid.find_key(piece)
+	for i in range(steps):
+		if index != -1:
+			index = launch(index)
+
+func launch(index: int) -> int:
+	var targetCoords = getCoordsForFlatIndex(index) + get_vector_for_direction(grid[index].launchDirection)
+	if (targetCoords.x != 0 && targetCoords.y != 0
+	&& targetCoords.x != boardWidth - 1 && targetCoords.y != boardHeight - 1):
+		var targetIndex = getFlatIndexForCoords(targetCoords)
+		if grid.has(targetIndex):
+			get_kicked(targetIndex, grid[index].launchDirection)
+		else:
+			grid[targetIndex] = grid[index]
+			grid.erase(index)
+			grid[targetIndex].position = get_screen_position_for_flat_index(targetIndex)
+			if grid[targetIndex].pairedPieceIndex:
+				grid[index] = grid[grid[targetIndex].pairedPieceIndex]
+				grid.erase(grid[targetIndex].pairedPieceIndex)
+				grid[targetIndex].pairedPieceIndex = index
+				grid[index].pairedPieceIndex = targetIndex
+				grid[index].position = get_screen_position_for_flat_index(index)
+			return targetIndex
+	grid[index].stop_launching()
+	cellsToCheckForClears.append(index)
+	if grid[index].pairedPieceIndex != null:
+		cellsToCheckForClears.append(grid[index].pairedPieceIndex)
+	check_clears()
+	return -1
 
 func _on_player_move(distance: int, direction: int):
 	for step in range(distance):
@@ -77,10 +109,13 @@ func get_kicked(sourcePositionFlatIndex: int, direction: int):
 			if grid[sourcePositionFlatIndex].pairDirection != direction:
 				spin(sourcePositionFlatIndex, direction)
 			else:
+				#Launch leading pair only
 				grid[grid[sourcePositionFlatIndex].pairedPieceIndex].launch(direction)
-				grid[sourcePositionFlatIndex].launch(direction)
+				launch(grid[sourcePositionFlatIndex].pairedPieceIndex)
 		else:
-			grid[sourcePositionFlatIndex].launch(direction) #launch single or player
+			#launch single or player
+			grid[sourcePositionFlatIndex].launch(direction)
+			launch(sourcePositionFlatIndex)
 
 func spin(spinnerFlatIndex: int, direction: int):
 	var fulcrumFlatIndex: int = grid[spinnerFlatIndex].pairedPieceIndex
@@ -312,6 +347,8 @@ func generateBoard():
 					break
 				grid[flatIndex].position = get_screen_position_for_coords(coords)
 				grid[nextCell].position = get_screen_position_for_flat_index(nextCell)
+				grid[flatIndex].launch_advance.connect(_on_piece_launch_advance)
+				grid[nextCell].launch_advance.connect(_on_piece_launch_advance)
 				add_child(grid[flatIndex])
 				add_child(grid[nextCell])
 				possibleNums.erase(flatIndex)
@@ -360,7 +397,8 @@ testPieceFlatIndex: int, color: int) -> PackedInt32Array:
 		testPieceFlatIndex = getFlatIndexForCoords(testPieceCoords)
 		if grid.has(testPieceFlatIndex):
 			var testPiece = grid[testPieceFlatIndex]
-			if testPiece is Piece && testPiece.color == color:
+			if (testPiece is Piece && testPiece.color == color && testPiece.launchDirection == null
+			&& (testPiece.pairedPieceIndex == null || grid[testPiece.pairedPieceIndex].launchDirection == null)):
 				clear.append(testPieceFlatIndex)
 			else:
 				break

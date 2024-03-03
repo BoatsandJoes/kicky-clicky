@@ -1,7 +1,7 @@
 extends Node2D
 class_name Piece
 
-signal launch_advance(piece, steps)
+signal launch_advance(piece, steps: int)
 
 var color: int
 var pairDirection
