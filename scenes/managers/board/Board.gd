@@ -5,10 +5,10 @@ var boardHeight: int = 10
 var boardWidth: int = 13
 var outsideWalk: bool = true
 var cellSize: int = 36
-var numPieces: int = 40
+var numPieces: int = 36
 var numColors: int = 3
 var clearSize: int = 3
-var startPos: int = boardWidth / 2 + 1 + boardWidth * (boardHeight / 2 + 1)
+var startPos: int = boardWidth / 2 + boardWidth * (boardHeight / 2 )
 var grid: Dictionary = {}
 var Piece = preload("res://scenes/actors/Piece.tscn")
 var Player = preload("res://scenes/actors/Player.tscn")
@@ -292,6 +292,7 @@ func push(start: int, direction: int) -> int:
 	return destination
 
 func generateBoard():
+	var placed = 0
 	var possibleNums = range(boardHeight * boardWidth)
 	possibleNums.erase(startPos)
 	for i in range(boardWidth):
@@ -302,7 +303,8 @@ func generateBoard():
 		possibleNums.erase(i)
 	for i in range(boardWidth - 1, boardHeight * boardWidth, boardWidth):
 		possibleNums.erase(i)
-	for i in range(numPieces):
+	var failedPlacements = 0
+	while placed < numPieces:
 		var flatIndex: int = possibleNums[randi_range(0, possibleNums.size() - 1)]
 		var coords: Vector2 = getCoordsForFlatIndex(flatIndex)
 		var possibleDirections = []
@@ -354,8 +356,19 @@ func generateBoard():
 				possibleNums.erase(flatIndex)
 				possibleNums.erase(nextCell)
 				break
-		if !success:
-			pass #todo
+		if success:
+			placed = placed + 1
+		else:
+			failedPlacements = failedPlacements + 1
+		if failedPlacements > numPieces * 5:
+			break
+	if failedPlacements > numPieces * 5:
+		for key in grid.keys():
+			if grid[key] is Piece:
+				remove_child(grid[key])
+		grid.clear()
+		grid[startPos] = player
+		generateBoard()
 
 func check_clears():
 	var setsOfClears: Array[PackedInt32Array] = []
