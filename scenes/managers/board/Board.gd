@@ -27,6 +27,7 @@ var kickSound: AudioStreamPlayer
 var clearSfx = preload("res://assets/sfx/confirmation_001.ogg")
 var kickSlideSfx = preload("res://assets/sfx/click3.ogg")
 var kickSpinSfx = preload("res://assets/sfx/mouseclick1.ogg")
+var leaveResidue: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -316,10 +317,13 @@ func push(start: int, direction: int) -> int:
 			grid[destination].position = get_screen_position_for_flat_index(destination)
 	return destination
 
+func regenerateBoard():
+	generateBoard()
+
 func generateBoard():
 	var placed = 0
 	var possibleNums = range(boardHeight * boardWidth)
-	possibleNums.erase(startPos)
+	possibleNums.erase(player.positionFlatIndex)
 	for i in range(boardWidth):
 		possibleNums.erase(i)
 	for i in range((boardHeight - 1) * boardWidth, boardHeight * boardWidth):
@@ -328,6 +332,11 @@ func generateBoard():
 		possibleNums.erase(i)
 	for i in range(boardWidth - 1, boardHeight * boardWidth, boardWidth):
 		possibleNums.erase(i)
+	var currentNums = grid.keys()
+	for i in currentNums:
+		possibleNums.erase(i)
+		if i % 2 == 0:
+			placed = placed + 1
 	var failedPlacements = 0
 	while placed < numPieces:
 		var flatIndex: int = possibleNums[randi_range(0, possibleNums.size() - 1)]
@@ -524,15 +533,16 @@ func _physics_process(delta):
 			for key in remaining.keys():
 				for cell in remaining[key]:
 					perfect = false
-					var piece = grid[cell]
-					grid.erase(cell)
-					piece.cleared.connect(_on_piece_cleared)
-					piece.animate_clear(0)
+					if !leaveResidue:
+						var piece = grid[cell]
+						grid.erase(cell)
+						piece.cleared.connect(_on_piece_cleared)
+						piece.animate_clear(0)
 			scoreTotal = scoreTotal + 30
 			if perfect:
 				scoreTotal = scoreTotal + 10
 			emit_signal("score", scoreTotal)
-			emit_signal("win")
+			emit_signal("win", false)
 	cellsToClear.clear()
 	for kickKey in range(kicksThisFrame.size()):
 		get_kicked(kicksThisFrame[kickKey][0], kicksThisFrame[kickKey][1])

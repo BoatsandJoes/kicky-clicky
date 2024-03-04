@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-signal play(mode: int)
+signal play
 signal exit
 signal credits
 
@@ -12,17 +12,14 @@ func _input(event):
 	if event.is_action_pressed("exit"):
 		emit_signal("exit")
 	elif event.is_action_pressed("kick"):
-		emit_signal("play", Constants.Modes.KICKY)
+		_on_play_pressed()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
 
 func _on_play_pressed():
-	emit_signal("play", Constants.Modes.KICKY)
-
-func _on_play_pushy_pressed():
-	emit_signal("play", Constants.Modes.PUSHY)
+	emit_signal("play")
 
 func _on_exit_pressed():
 	emit_signal("exit")

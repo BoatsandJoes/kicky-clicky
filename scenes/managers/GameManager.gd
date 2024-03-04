@@ -39,16 +39,23 @@ func _ready():
 	add_child(board)
 	play_random_song()
 	gameTimer = GameTimer.instantiate()
+	gameTimer.outOfTime.connect(_on_gameTimer_outOfTime)
 	add_child(gameTimer)
 	scoreboard = Score.instantiate()
 	add_child(scoreboard)
 
+func _on_gameTimer_outOfTime():
+	_on_board_win(true)
+
 func _on_board_score(score: int):
 	scoreboard.set_score(score)
 
-func _on_board_win():
-	gameTimer.stopped = true
-	board.player.win()
+func _on_board_win(done):
+	if gameTimer.timeLimit == null || done:
+		gameTimer.stopped = true
+		board.player.win()
+	else:
+		board.regenerateBoard()
 
 func _on_music_finished():
 	play_random_song()

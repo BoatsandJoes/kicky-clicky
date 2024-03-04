@@ -4,6 +4,7 @@ class_name Main
 var GameManager = preload("res://scenes/managers/GameManager.tscn")
 var game: GameManager
 var MainMenu = preload("res://scenes/ui/menus/MainMenu.tscn")
+var ModeMenu = preload("res://scenes/ui/menus/ModeMenu.tscn")
 var Credits = preload("res://scenes/ui/menus/Credits.tscn")
 var menu
 
@@ -30,7 +31,7 @@ func go_to_main_menu():
 	remove_children()
 	menu = MainMenu.instantiate()
 	menu.exit.connect(_on_main_menu_exit)
-	menu.play.connect(_on_menu_play)
+	menu.play.connect(_on_main_menu_play)
 	menu.credits.connect(_on_menu_credits)
 	add_child(menu)
 
@@ -40,7 +41,14 @@ func _on_menu_credits():
 	menu.exit.connect(go_to_main_menu)
 	add_child(menu)
 
-func _on_menu_play(mode: int):
+func _on_main_menu_play():
+	remove_children()
+	menu = ModeMenu.instantiate()
+	menu.exit.connect(_on_mode_menu_exit)
+	menu.start.connect(_on_mode_menu_start)
+	add_child(menu)
+
+func _on_mode_menu_start(mode: int, timeLimit):
 	remove_children()
 	game = GameManager.instantiate()
 	game.exit.connect(_on_game_exit)
@@ -51,8 +59,14 @@ func _on_menu_play(mode: int):
 	elif mode == Constants.Modes.PUSHY:
 		game.board.pushEnabled = true
 		game.board.player.kickEnabled = false
+	if timeLimit != null:
+		game.gameTimer.timeLimit = timeLimit
+		game.board.leaveResidue = true
 
 func _on_game_exit():
+	_on_main_menu_play()
+
+func _on_mode_menu_exit():
 	go_to_main_menu()
 
 func _on_main_menu_exit():
