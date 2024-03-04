@@ -20,6 +20,8 @@ var cellsToCheckForClears: PackedInt32Array = []
 var cellsToClear: PackedInt32Array = []
 var pushEnabled = false
 var scoreTotal = 0
+var kicksNextFrame: Array[Array]
+var kicksThisFrame: Array[Array]
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -49,7 +51,7 @@ func launch(index: int) -> int:
 	&& targetCoords.x != boardWidth - 1 && targetCoords.y != boardHeight - 1):
 		var targetIndex = getFlatIndexForCoords(targetCoords)
 		if grid.has(targetIndex):
-			get_kicked(targetIndex, grid[index].launchDirection)
+			kicksNextFrame.append([targetIndex, grid[index].launchDirection])
 		else:
 			grid[targetIndex] = grid[index]
 			grid.erase(index)
@@ -109,7 +111,7 @@ func kick(sourcePositionFlatIndex, direction):
 		get_kicked(target, direction) #todo if this was cleared, it can no longer apply clack. fix?
 
 func get_kicked(sourcePositionFlatIndex: int, direction: int):
-	if grid[sourcePositionFlatIndex] != null:
+	if grid.has(sourcePositionFlatIndex):
 		if grid[sourcePositionFlatIndex].pairedPieceIndex != null:
 			if grid[sourcePositionFlatIndex].pairDirection != direction:
 				spin(sourcePositionFlatIndex, direction)
@@ -504,6 +506,12 @@ func _physics_process(delta):
 			emit_signal("score", scoreTotal)
 			emit_signal("win")
 	cellsToClear.clear()
+	for kickKey in range(kicksThisFrame.size()):
+		get_kicked(kicksThisFrame[kickKey][0], kicksThisFrame[kickKey][1])
+	kicksThisFrame.clear()
+	for kickKey in range(kicksNextFrame.size()):
+		kicksThisFrame.append(kicksNextFrame[kickKey])
+	kicksNextFrame.clear()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
