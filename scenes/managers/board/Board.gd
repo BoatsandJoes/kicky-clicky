@@ -22,16 +22,22 @@ var pushEnabled = false
 var scoreTotal = 0
 var kicksNextFrame: Array[Array]
 var kicksThisFrame: Array[Array]
-var sfx: AudioStreamPlayer
+var clearSound: AudioStreamPlayer
+var kickSound: AudioStreamPlayer
 var clearSfx = preload("res://assets/sfx/confirmation_001.ogg")
+var kickSlideSfx = preload("res://assets/sfx/click3.ogg")
+var kickSpinSfx = preload("res://assets/sfx/mouseclick1.ogg")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Background
-	sfx = AudioStreamPlayer.new()
-	sfx.stream = clearSfx
-	sfx.set_bus("ReduceLess")
-	add_child(sfx)
+	clearSound = AudioStreamPlayer.new()
+	clearSound.stream = clearSfx
+	clearSound.set_bus("ReduceLess")
+	add_child(clearSound)
+	kickSound = AudioStreamPlayer.new()
+	kickSound.set_bus("Master")
+	add_child(kickSound)
 	var points = [Vector2(0,0), Vector2(0,boardHeight * cellSize),
 	Vector2(boardWidth*cellSize, boardHeight * cellSize), Vector2(boardWidth*cellSize, 0)]
 	$Polygon2D.set_polygon(points)
@@ -120,13 +126,19 @@ func get_kicked(sourcePositionFlatIndex: int, direction: int):
 	if grid.has(sourcePositionFlatIndex):
 		if grid[sourcePositionFlatIndex].pairedPieceIndex != null:
 			if grid[sourcePositionFlatIndex].pairDirection != direction:
+				kickSound.set_stream(kickSpinSfx)
+				kickSound.play()
 				spin(sourcePositionFlatIndex, direction)
 			else:
+				kickSound.set_stream(kickSlideSfx)
+				kickSound.play()
 				#Launch leading pair only
 				grid[grid[sourcePositionFlatIndex].pairedPieceIndex].launch(direction)
 				launch(grid[sourcePositionFlatIndex].pairedPieceIndex)
 		else:
 			#launch single or player
+			kickSound.set_stream(kickSlideSfx)
+			kickSound.play()
 			grid[sourcePositionFlatIndex].launch(direction)
 			launch(sourcePositionFlatIndex)
 
@@ -493,7 +505,7 @@ func _physics_process(delta):
 				piece.cleared.connect(_on_piece_cleared)
 				piece.animate_clear(1)
 	if clearOccurred:
-		sfx.play()
+		clearSound.play()
 		# Check for victory
 		var victory = true
 		var remaining: Dictionary = {}
