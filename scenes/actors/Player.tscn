@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://cv7423rfdj55n"]
+[gd_scene load_steps=18 format=3 uid="uid://cv7423rfdj55n"]
 
 [ext_resource type="Script" path="res://scenes/actors/Player.gd" id="1_ekssy"]
 [ext_resource type="Texture2D" uid="uid://d31kcidnt1be3" path="res://assets/sprites/MouseSpritesheet.png" id="2_1mltj"]
@@ -394,6 +394,36 @@ tracks/1/keys = {
 "values": [Vector2(2, 2)]
 }
 
+[sub_resource type="Animation" id="Animation_5gj41"]
+resource_name = "win"
+length = 1.33334
+loop_mode = 1
+step = 0.0833333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.0833333, 0.166667, 0.25, 0.333333, 0.416667, 0.5, 0.583333, 0.666667, 0.75, 0.833333, 0.916667, 1, 1.08333, 1.16667, 1.25),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.666667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(2, 2), Vector2(-2, 2)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ts28s"]
 _data = {
 "RESET": SubResource("Animation_e1h6h"),
@@ -408,7 +438,8 @@ _data = {
 "walk_down": SubResource("Animation_aeicp"),
 "walk_left": SubResource("Animation_8o0v6"),
 "walk_right": SubResource("Animation_yjlli"),
-"walk_up": SubResource("Animation_6mmon")
+"walk_up": SubResource("Animation_6mmon"),
+"win": SubResource("Animation_5gj41")
 }
 
 [node name="Player" type="Node2D"]

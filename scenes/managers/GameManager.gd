@@ -32,10 +32,15 @@ func _ready():
 	board = Board.instantiate()
 	board.init()
 	board.position = Vector2(18, 18)
+	board.win.connect(_on_game_win)
 	add_child(board)
 	play_random_song()
 	gameTimer = GameTimer.instantiate()
 	add_child(gameTimer)
+
+func _on_game_win():
+	gameTimer.stopped = true
+	board.player.win()
 
 func _on_music_finished():
 	play_random_song()

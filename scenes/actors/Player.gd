@@ -19,10 +19,20 @@ var kickProgress: float = 0.0
 var kickThreshold: float = 0.1
 var bufferedDirection = null
 var kickEnabled = true
+var won: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	stop_moving()
+
+func win():
+	won = true
+	stop_launching()
+	moving = false
+	kickStartup = false
+	kickProgress = 0.0
+	moveProgress = 0.0
+	$AnimationPlayer.play("win")
 
 func change_direction(direction: int):
 	if kickStartup:
@@ -104,46 +114,47 @@ func start_kicking():
 		bufferedDirection = null
 
 func _input(event):
-	if event.is_action_pressed("kick"):
-		if !kickStartup && kickEnabled:
-			start_kicking()
-	elif event.is_action_pressed("up"):
-		if moving && direction == Constants.Directions.DOWN:
-			stop_moving()
-		else:
-			change_direction(Constants.Directions.UP)
-	elif event.is_action_pressed("down"):
-		if moving && direction == Constants.Directions.UP:
-			stop_moving()
-		else:
-			change_direction(Constants.Directions.DOWN)
-	elif event.is_action_pressed("left"):
-		if moving && direction == Constants.Directions.RIGHT:
-			stop_moving()
-		else:
-			change_direction(Constants.Directions.LEFT)
-	elif event.is_action_pressed("right"):
-		if moving && direction == Constants.Directions.LEFT:
-			stop_moving()
-		else:
-			change_direction(Constants.Directions.RIGHT)
-	elif event.is_action_released("up") && !Input.is_action_pressed("up"):
-		if Input.is_action_pressed("down"):
-			change_direction(Constants.Directions.DOWN)
-		elif direction == Constants.Directions.UP:
-			stop_moving()
-	elif event.is_action_released("down") && !Input.is_action_pressed("down"):
-		if Input.is_action_pressed("up"):
-			change_direction(Constants.Directions.UP)
-		elif direction == Constants.Directions.DOWN:
-			stop_moving()
-	elif event.is_action_released("left") && !Input.is_action_pressed("left"):
-		if Input.is_action_pressed("right"):
-			change_direction(Constants.Directions.RIGHT)
-		elif direction == Constants.Directions.LEFT:
-			stop_moving()
-	elif event.is_action_released("right") && !Input.is_action_pressed("right"):
-		if Input.is_action_pressed("left"):
-			change_direction(Constants.Directions.LEFT)
-		elif direction == Constants.Directions.RIGHT:
-			stop_moving()
+	if !won:
+		if event.is_action_pressed("kick"):
+			if !kickStartup && kickEnabled:
+				start_kicking()
+		elif event.is_action_pressed("up"):
+			if moving && direction == Constants.Directions.DOWN:
+				stop_moving()
+			else:
+				change_direction(Constants.Directions.UP)
+		elif event.is_action_pressed("down"):
+			if moving && direction == Constants.Directions.UP:
+				stop_moving()
+			else:
+				change_direction(Constants.Directions.DOWN)
+		elif event.is_action_pressed("left"):
+			if moving && direction == Constants.Directions.RIGHT:
+				stop_moving()
+			else:
+				change_direction(Constants.Directions.LEFT)
+		elif event.is_action_pressed("right"):
+			if moving && direction == Constants.Directions.LEFT:
+				stop_moving()
+			else:
+				change_direction(Constants.Directions.RIGHT)
+		elif event.is_action_released("up") && !Input.is_action_pressed("up"):
+			if Input.is_action_pressed("down"):
+				change_direction(Constants.Directions.DOWN)
+			elif direction == Constants.Directions.UP:
+				stop_moving()
+		elif event.is_action_released("down") && !Input.is_action_pressed("down"):
+			if Input.is_action_pressed("up"):
+				change_direction(Constants.Directions.UP)
+			elif direction == Constants.Directions.DOWN:
+				stop_moving()
+		elif event.is_action_released("left") && !Input.is_action_pressed("left"):
+			if Input.is_action_pressed("right"):
+				change_direction(Constants.Directions.RIGHT)
+			elif direction == Constants.Directions.LEFT:
+				stop_moving()
+		elif event.is_action_released("right") && !Input.is_action_pressed("right"):
+			if Input.is_action_pressed("left"):
+				change_direction(Constants.Directions.LEFT)
+			elif direction == Constants.Directions.RIGHT:
+				stop_moving()

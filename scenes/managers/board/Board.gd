@@ -1,6 +1,8 @@
 extends Node2D
 class_name Board
 
+signal win
+
 var boardHeight: int = 9
 var boardWidth: int = 12
 var outsideWalk: bool = true
@@ -472,6 +474,26 @@ func _physics_process(delta):
 				grid.erase(cell)
 				remove_child(piece)
 	cellsToClear.clear()
+	# Check for victory
+	var victory = true
+	var remaining: Dictionary = {}
+	for color in range(numColors):
+		remaining[color] = []
+	for key in grid.keys():
+		var piece = grid[key]
+		if piece is Piece:
+			remaining[piece.color].append(key)
+	for key in remaining.keys():
+		if remaining[key].size() >= clearSize:
+			victory = false
+			break
+	if victory:
+		for key in remaining.keys():
+			for cell in remaining[key]:
+				var piece = grid[cell]
+				grid.erase(cell)
+				remove_child(piece)
+		emit_signal("win")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):

@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name GameTimer
 
 var timeElapsed: float = 0.0
+var stopped = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -23,5 +24,6 @@ func pad(str: String) -> String:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	timeElapsed = timeElapsed + delta
-	updateTimer(timeElapsed)
+	if !stopped:
+		timeElapsed = timeElapsed + delta
+		updateTimer(timeElapsed)
