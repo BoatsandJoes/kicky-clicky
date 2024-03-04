@@ -7,6 +7,8 @@ var Board = preload("res://scenes/managers/board/Board.tscn")
 var board: Board
 var GameTimer = preload("res://scenes/ui/GameTimer.tscn")
 var gameTimer: GameTimer
+var Score = preload("res://scenes/ui/Score.tscn")
+var scoreboard: Score
 var music: AudioStreamPlayer
 var musicTracks: Array[String] = [
 "res://assets/music/JOXION - Talk That Way [NCS Release] (instrumental).mp3",
@@ -32,13 +34,19 @@ func _ready():
 	board = Board.instantiate()
 	board.init()
 	board.position = Vector2(18, 18)
-	board.win.connect(_on_game_win)
+	board.win.connect(_on_board_win)
+	board.score.connect(_on_board_score)
 	add_child(board)
 	play_random_song()
 	gameTimer = GameTimer.instantiate()
 	add_child(gameTimer)
+	scoreboard = Score.instantiate()
+	add_child(scoreboard)
 
-func _on_game_win():
+func _on_board_score(score: int):
+	scoreboard.set_score(score)
+
+func _on_board_win():
 	gameTimer.stopped = true
 	board.player.win()
 

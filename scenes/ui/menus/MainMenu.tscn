@@ -41,6 +41,7 @@ layout_mode = 2
 text = "Play Pushy Mode"
 
 [node name="Credits" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Credits"
 

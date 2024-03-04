@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://dqot6ejkf2mne"]
+
+[ext_resource type="Script" path="res://scenes/ui/Score.gd" id="1_0jx2s"]
+
+[node name="Score" type="CanvasLayer"]
+script = ExtResource("1_0jx2s")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Score" type="Label" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"

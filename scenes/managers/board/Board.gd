@@ -2,6 +2,7 @@ extends Node2D
 class_name Board
 
 signal win
+signal score(score: int)
 
 var boardHeight: int = 9
 var boardWidth: int = 12
@@ -18,6 +19,7 @@ var player: Player
 var cellsToCheckForClears: PackedInt32Array = []
 var cellsToClear: PackedInt32Array = []
 var pushEnabled = false
+var scoreTotal = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -397,7 +399,6 @@ func check_clears():
 		# Done checking this cell
 		cellsToCheckForClears.remove_at(0)
 	for clear in setsOfClears:
-		# todo score
 		cellsToClear.append_array(clear)
 
 func scan_clears_in_direction(direction: Vector2i, testPieceCoords: Vector2i,
@@ -473,27 +474,36 @@ func _physics_process(delta):
 						pair.pairedPieceIndex = null
 				grid.erase(cell)
 				remove_child(piece)
-	cellsToClear.clear()
-	# Check for victory
-	var victory = true
-	var remaining: Dictionary = {}
-	for color in range(numColors):
-		remaining[color] = []
-	for key in grid.keys():
-		var piece = grid[key]
-		if piece is Piece:
-			remaining[piece.color].append(key)
-	for key in remaining.keys():
-		if remaining[key].size() >= clearSize:
-			victory = false
-			break
-	if victory:
+				scoreTotal = scoreTotal + 1
+				emit_signal("score", scoreTotal)
+	if cellsToClear.size() != 0:
+		# Check for victory
+		var victory = true
+		var remaining: Dictionary = {}
+		for color in range(numColors):
+			remaining[color] = []
+		for key in grid.keys():
+			var piece = grid[key]
+			if piece is Piece:
+				remaining[piece.color].append(key)
 		for key in remaining.keys():
-			for cell in remaining[key]:
-				var piece = grid[cell]
-				grid.erase(cell)
-				remove_child(piece)
-		emit_signal("win")
+			if remaining[key].size() >= clearSize:
+				victory = false
+				break
+		if victory:
+			var perfect = true
+			for key in remaining.keys():
+				for cell in remaining[key]:
+					perfect = false
+					var piece = grid[cell]
+					grid.erase(cell)
+					remove_child(piece)
+			scoreTotal = scoreTotal + 30
+			if perfect:
+				scoreTotal = scoreTotal + 10
+			emit_signal("score", scoreTotal)
+			emit_signal("win")
+	cellsToClear.clear()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
