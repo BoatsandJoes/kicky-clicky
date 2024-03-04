@@ -22,10 +22,16 @@ var pushEnabled = false
 var scoreTotal = 0
 var kicksNextFrame: Array[Array]
 var kicksThisFrame: Array[Array]
+var sfx: AudioStreamPlayer
+var clearSfx = preload("res://assets/sfx/confirmation_001.ogg")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Background
+	sfx = AudioStreamPlayer.new()
+	sfx.stream = clearSfx
+	sfx.set_bus("ReduceLess")
+	add_child(sfx)
 	var points = [Vector2(0,0), Vector2(0,boardHeight * cellSize),
 	Vector2(boardWidth*cellSize, boardHeight * cellSize), Vector2(boardWidth*cellSize, 0)]
 	$Polygon2D.set_polygon(points)
@@ -470,10 +476,12 @@ func _on_piece_cleared(piece: Piece):
 	piece.queue_free()
 
 func _physics_process(delta):
+	var clearOccurred: bool = false
 	for cell in cellsToClear:
 		if grid.has(cell):
 			var piece = grid[cell]
 			if piece is Piece:
+				clearOccurred = true
 				if piece.pairedPieceIndex && grid.has(piece.pairedPieceIndex):
 					var pair = grid[piece.pairedPieceIndex]
 					if pair is Piece:
@@ -484,7 +492,8 @@ func _physics_process(delta):
 				piece.animate_clear()
 				scoreTotal = scoreTotal + 1
 				emit_signal("score", scoreTotal)
-	if cellsToClear.size() != 0:
+	if clearOccurred:
+		sfx.play()
 		# Check for victory
 		var victory = true
 		var remaining: Dictionary = {}

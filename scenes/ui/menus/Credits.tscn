@@ -23,7 +23,9 @@ text = "Design and Programming: BoatsAndJoes
 
 Mouse sprites: https://rolff.itch.io/
 
-Tiles: Lunaticker"
+Tiles: Lunaticker
+
+Sound Effects: Kenney www.kenney.nl"
 
 [node name="Label2" type="Label" parent="MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
