@@ -2,6 +2,7 @@ extends CanvasLayer
 
 signal play(mode: int)
 signal exit
+signal credits
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -25,3 +26,6 @@ func _on_play_pushy_pressed():
 
 func _on_exit_pressed():
 	emit_signal("exit")
+
+func _on_credits_pressed():
+	emit_signal("credits")

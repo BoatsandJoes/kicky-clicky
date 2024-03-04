@@ -4,6 +4,7 @@ class_name Main
 var GameManager = preload("res://scenes/managers/GameManager.tscn")
 var game: GameManager
 var MainMenu = preload("res://scenes/ui/menus/MainMenu.tscn")
+var Credits = preload("res://scenes/ui/menus/Credits.tscn")
 var menu
 
 # Called when the node enters the scene tree for the first time.
@@ -30,8 +31,14 @@ func go_to_main_menu():
 	menu = MainMenu.instantiate()
 	menu.exit.connect(_on_main_menu_exit)
 	menu.play.connect(_on_menu_play)
+	menu.credits.connect(_on_menu_credits)
 	add_child(menu)
 
+func _on_menu_credits():
+	remove_children()
+	menu = Credits.instantiate()
+	menu.exit.connect(go_to_main_menu)
+	add_child(menu)
 
 func _on_menu_play(mode: int):
 	remove_children()

@@ -1,0 +1,106 @@
+[gd_scene load_steps=2 format=3 uid="uid://cenmaj88o0hw2"]
+
+[ext_resource type="Script" path="res://scenes/ui/menus/Credits.gd" id="1_y83kw"]
+
+[node name="Credits" type="CanvasLayer"]
+script = ExtResource("1_y83kw")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Label1" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Design and Programming: BoatsAndJoes
+
+Mouse sprites: https://rolff.itch.io/
+
+Tiles: Lunaticker"
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Song: JOXION - Talk That Way [Arcade Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/TalkThatWay
+Watch: https://www.youtube.com/watch?v=PMUqriyGW64
+
+Song: LOUD ABOUT US! - Goes Like [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: https://ncs.io/GoesLike
+Watch: http://youtu.be/eDcKZpoUc6s
+
+Song: Max Brhon - Humanity [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/Humanity
+Watch: http://youtu.be/OJhqsUnKUWw"
+
+[node name="Label3" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Song: More Plastic & URBANO - Psycho [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/MPU_Psycho
+Watch: https://www.youtube.com/watch?v=-QKgzYTPSEo
+
+Song: NOYSE & ÆSTRØ - La Manera De Vivir [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/LMDV
+Watch: https://www.youtube.com/watch?v=z7hLV1JaryA
+
+Song: SIIK & Alenn - Mess [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/Mess
+Watch: https://www.youtube.com/watch?v=-Kjrf-pxQc4"
+
+[node name="Label4" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Song: Sam Ourt, AKIAL & Srikar - Escape (Juan Dileju & Sam Ourt VIP Mix)
+[NCS Release] Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/Escape_VIP
+Watch: https://www.youtube.com/watch?v=TtFSSfoUVo4
+
+Song: Siberian Express - Talk To Me [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://NCS.io/SETalkToMe
+Watch: http://youtu.be/LKg6P5aI_bQ
+
+Song: Toxic Joy - All Night [Arcade Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/allnight
+Watch: http://ncs.lnk.to/allnightAT/youtube"
+
+[node name="Label5" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Track: NATSUMI - Take Me Away [NCS Release]
+Music provided by NoCopyrightSounds.
+Watch: https://youtu.be/25-ma4FUXuY
+Free Download / Stream: https://ncs.io/TakeMeAway
+
+Song: Alisky - Grow (feat. VØR) [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://NCS.io/Grow
+Watch: http://youtu.be/ZbnMeTzzjZE
+
+Song: Approaching Nirvana & Alex Holmes - Darkness Comes [NCS Release]
+Music provided by NoCopyrightSounds
+Free Download/Stream: http://ncs.io/DarknessComes
+Watch: http://youtu.be/NxpmN_f7AbY"

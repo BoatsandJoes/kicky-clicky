@@ -8,9 +8,7 @@ var board: Board
 var GameTimer = preload("res://scenes/ui/GameTimer.tscn")
 var gameTimer: GameTimer
 var music: AudioStreamPlayer
-var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR) [NCS Release] (instrumental).mp3",
-"res://assets/music/Approaching Nirvana & Alex Holmes - Darkness Comes [NCS Release] (instrumental).mp3",
-"res://assets/music/Dryskill & Max Brhon - War Machine [NCS Release] (instrumental).mp3",
+var musicTracks: Array[String] = [
 "res://assets/music/JOXION - Talk That Way [NCS Release] (instrumental).mp3",
 "res://assets/music/LOUD ABOUT US! - Goes Like [NCS Release].mp3",
 "res://assets/music/Max Brhon - Humanity [NCS Release].mp3",
@@ -20,7 +18,9 @@ var musicTracks: Array[String] = ["res://assets/music/Alisky - Grow (feat. VØR)
 "res://assets/music/Sam Ourt, AKIAL & Srikar - Escape (Juan Dileju & Sam Ourt VIP Mix) [NCS Release] (instrumental).mp3",
 "res://assets/music/Siberian Express - Talk To Me [NCS Release] (instrumental).mp3",
 "res://assets/music/Toxic Joy - All Night [NCS Release] (instrumental).mp3",
-"res://assets/music/Track NATSUMI - Take Me Away [NCS Release].mp3"
+"res://assets/music/Track NATSUMI - Take Me Away [NCS Release].mp3",
+"res://assets/music/Alisky - Grow (feat. VØR) [NCS Release] (instrumental).mp3",
+"res://assets/music/Approaching Nirvana & Alex Holmes - Darkness Comes [NCS Release] (instrumental).mp3"
 ]
 
 # Called when the node enters the scene tree for the first time.
