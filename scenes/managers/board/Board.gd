@@ -371,6 +371,7 @@ func generateBoard():
 			break
 	if failedPlacements > numPieces * 5:
 		for key in grid.keys():
+			grid[key].queue_free()
 			remove_child(grid[key])
 		grid.clear()
 		generateBoard()
@@ -464,6 +465,10 @@ func getCoordsForFlatIndex(index: int) -> Vector2i:
 func init():
 	pass
 
+func _on_piece_cleared(piece: Piece):
+	remove_child(piece)
+	piece.queue_free()
+
 func _physics_process(delta):
 	for cell in cellsToClear:
 		if grid.has(cell):
@@ -475,7 +480,8 @@ func _physics_process(delta):
 						pair.set_direction(null)
 						pair.pairedPieceIndex = null
 				grid.erase(cell)
-				remove_child(piece)
+				piece.cleared.connect(_on_piece_cleared)
+				piece.animate_clear()
 				scoreTotal = scoreTotal + 1
 				emit_signal("score", scoreTotal)
 	if cellsToClear.size() != 0:

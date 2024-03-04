@@ -2,6 +2,7 @@ extends Node2D
 class_name Piece
 
 signal launch_advance(piece, steps: int)
+signal cleared(piece)
 
 var color: int
 var pairDirection
@@ -53,6 +54,10 @@ func launch(direction: int):
 func stop_launching():
 	launchDirection = null
 	launchProgress = 0.0
+
+func animate_clear():
+	#todo clear animation
+	emit_signal("cleared", self)
 
 func _physics_process(delta):
 	if launchDirection != null:
