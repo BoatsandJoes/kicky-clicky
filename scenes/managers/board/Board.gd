@@ -472,6 +472,8 @@ func init():
 	pass
 
 func _on_piece_cleared(piece: Piece):
+	scoreTotal = scoreTotal + piece.score
+	emit_signal("score", scoreTotal)
 	remove_child(piece)
 	piece.queue_free()
 
@@ -489,9 +491,7 @@ func _physics_process(delta):
 						pair.pairedPieceIndex = null
 				grid.erase(cell)
 				piece.cleared.connect(_on_piece_cleared)
-				piece.animate_clear()
-				scoreTotal = scoreTotal + 1
-				emit_signal("score", scoreTotal)
+				piece.animate_clear(1)
 	if clearOccurred:
 		sfx.play()
 		# Check for victory
@@ -514,7 +514,8 @@ func _physics_process(delta):
 					perfect = false
 					var piece = grid[cell]
 					grid.erase(cell)
-					remove_child(piece)
+					piece.cleared.connect(_on_piece_cleared)
+					piece.animate_clear(0)
 			scoreTotal = scoreTotal + 30
 			if perfect:
 				scoreTotal = scoreTotal + 10

@@ -11,9 +11,11 @@ var cellSize: int = 36
 var launchThreshold: float = 0.05
 var launchDirection = null
 var launchProgress: float = 0.0
+var score = 1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$AnimationPlayer.animation_finished.connect(_on_clear_finished)
 	if color == Constants.Colors.RED:
 		$Sprite2D.texture = load("res://assets/sprites/red.png")
 	elif color == Constants.Colors.BLUE:
@@ -55,9 +57,14 @@ func stop_launching():
 	launchDirection = null
 	launchProgress = 0.0
 
-func animate_clear():
-	#todo clear animation
-	emit_signal("cleared", self)
+func animate_clear(score):
+	self.score = score
+	$Polygon2D.visible = false
+	$AnimationPlayer.play("clear")
+
+func _on_clear_finished(animationName: String):
+	if animationName == "clear":
+		emit_signal("cleared", self)
 
 func _physics_process(delta):
 	if launchDirection != null:
