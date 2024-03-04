@@ -18,6 +18,7 @@ var kickStartup: bool = false
 var kickProgress: float = 0.0
 var kickThreshold: float = 0.1
 var bufferedDirection = null
+var kickEnabled = true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -104,7 +105,7 @@ func start_kicking():
 
 func _input(event):
 	if event.is_action_pressed("kick"):
-		if !kickStartup:
+		if !kickStartup && kickEnabled:
 			start_kicking()
 	elif event.is_action_pressed("up"):
 		if moving && direction == Constants.Directions.DOWN:

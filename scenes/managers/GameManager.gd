@@ -1,6 +1,8 @@
 extends Node2D
 class_name GameManager
 
+signal exit
+
 var Board = preload("res://scenes/managers/board/Board.tscn")
 var board: Board
 var GameTimer = preload("res://scenes/ui/GameTimer.tscn")
@@ -41,6 +43,10 @@ func _on_music_finished():
 func play_random_song():
 	music.stream = load(musicTracks[randi() % musicTracks.size()])
 	music.play()
+
+func _input(event):
+	if event.is_action_pressed("exit"):
+		emit_signal("exit")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
